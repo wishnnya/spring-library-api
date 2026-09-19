@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: demo
+  datasource:
+    url: jdbc:postgresql://db:5432/library
+    username: postgres
+    password: postgres
