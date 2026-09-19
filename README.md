@@ -1,27 +1,234 @@
-# Getting Started
+# Library REST API
 
-### Reference Documentation
-For further reference, please consider the following sections:
+Backend-приложение для управления библиотекой, разработанное на Java и Spring Boot.
 
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/4.0.6/gradle-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/4.0.6/gradle-plugin/packaging-oci-image.html)
-* [Spring Web](https://docs.spring.io/spring-boot/4.0.6/reference/web/servlet.html)
-* [Spring Data JDBC](https://docs.spring.io/spring-boot/4.0.6/reference/data/sql.html#data.sql.jdbc)
-* [SpringDoc OpenAPI](https://springdoc.org/)
-* [Liquibase Migration](https://docs.spring.io/spring-boot/4.0.6/how-to/data-initialization.html#howto.data-initialization.migration-tool.liquibase)
+Проект был выполнен в рамках изучения backend-разработки и практики навыков, связанных с DevOps: сборки приложения, работы с базой данных, миграций и контейнеризации.
 
-### Guides
-The following guides illustrate how to use some features concretely:
+Приложение предоставляет REST API для работы с авторами и книгами, поддерживает CRUD-операции, поиск и пагинацию.
 
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
-* [Using Spring Data JDBC](https://github.com/spring-projects/spring-data-examples/tree/main/jdbc/basics)
-* [SpringDoc OpenAPI](https://github.com/springdoc/springdoc-openapi-demos/)
+## Возможности
 
-### Additional Links
-These additional references should also help you:
+### Авторы
 
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
+* получение списка авторов;
+* получение автора по ID;
+* создание автора;
+* изменение автора;
+* удаление автора;
+* проверка существования автора.
 
+### Книги
+
+* получение списка книг;
+* получение книги по ID;
+* создание книги;
+* изменение книги;
+* удаление книги;
+* поиск книг по названию;
+* поиск книг по имени автора;
+* пагинация результатов поиска.
+
+## Технологии
+
+* Java
+* Spring Boot
+* Spring Web MVC
+* Spring JDBC
+* PostgreSQL
+* Liquibase
+* Gradle
+* Docker
+* Docker Compose
+* JUnit
+* OpenAPI / Swagger
+* Spring Boot Actuator
+
+## Структура приложения
+
+Приложение разделено на несколько слоёв:
+
+* `controller` — принимает и обрабатывает HTTP-запросы;
+* `service` — содержит бизнес-логику;
+* `repository` — отвечает за работу с базой данных;
+* `entity` — содержит модели данных;
+* `request` и `response` — модели запросов и ответов API;
+* `exception` — обработка ошибок приложения.
+
+Такое разделение позволило на практике разобраться со структурой backend-приложения и взаимодействием его компонентов.
+
+## База данных
+
+В качестве базы данных используется PostgreSQL.
+
+В проекте есть две основные сущности:
+
+### Author
+
+* `id` — UUID автора;
+* `name` — имя автора.
+
+### Book
+
+* `id` — UUID книги;
+* `title` — название книги;
+* `author_id` — ссылка на автора.
+
+Между авторами и книгами реализована связь через внешний ключ.
+
+Для работы с базой данных используется Spring JDBC и `NamedParameterJdbcTemplate`.
+
+В проекте используются SQL-запросы с:
+
+* `SELECT`;
+* `INSERT`;
+* `UPDATE`;
+* `DELETE`;
+* `JOIN`;
+* `COUNT`;
+* `LIKE`;
+* `ORDER BY`;
+* `LIMIT`;
+* `OFFSET`.
+
+## Миграции базы данных
+
+Для управления структурой PostgreSQL используется Liquibase.
+
+Миграции позволяют создавать и изменять структуру базы данных при запуске приложения без необходимости вручную создавать таблицы.
+
+Это позволило на практике разобраться с версионированием схемы базы данных и автоматическим применением изменений.
+
+## Сборка проекта
+
+Для сборки используется Gradle.
+
+В проект добавлен Gradle Wrapper, поэтому для сборки не требуется отдельно устанавливать подходящую версию Gradle.
+
+Сборка:
+
+```bash
+./gradlew build
+```
+
+Запуск тестов:
+
+```bash
+./gradlew test
+```
+
+Создание JAR-файла:
+
+```bash
+./gradlew bootJar
+```
+
+## Docker
+
+Для контейнеризации приложения используется Docker.
+
+`Dockerfile` описывает сборку и запуск контейнера с приложением.
+
+Для совместного запуска приложения и PostgreSQL используется Docker Compose.
+
+Запуск:
+
+```bash
+docker compose up --build
+```
+
+Docker Compose позволяет поднять необходимые компоненты проекта одной командой и настроить их взаимодействие внутри Docker-сети.
+
+После запуска REST API доступно на порту:
+
+```text
+8080
+```
+
+## Обработка ошибок
+
+В приложении реализована централизованная обработка ошибок.
+
+Для бизнес-ошибок используется собственное исключение `ValidationException`, а глобальная обработка исключений реализована с помощью `@RestControllerAdvice` и `@ExceptionHandler`.
+
+## Транзакции
+
+Для операций, которые должны выполняться атомарно, используются транзакции Spring через `@Transactional`.
+
+Также в проекте используется PostgreSQL `pg_advisory_xact_lock` для обработки ситуаций с одновременным выполнением некоторых запросов.
+
+## Тестирование
+
+В проекте присутствуют автоматические тесты для проверки отдельных компонентов приложения.
+
+Тесты запускаются через Gradle:
+
+```bash
+./gradlew test
+```
+
+## Что я изучила в процессе работы над проектом
+
+Во время разработки проекта я получила практический опыт не только в написании backend-кода, но и в подготовке приложения к запуску в отдельном окружении.
+
+На практике я изучила:
+
+* основы разработки REST API на Java и Spring Boot;
+* структуру backend-приложения и разделение на Controller, Service и Repository;
+* работу с PostgreSQL;
+* написание SQL-запросов и использование `JOIN`;
+* связи между таблицами и внешние ключи;
+* работу со Spring JDBC;
+* транзакции;
+* миграции базы данных с помощью Liquibase;
+* сборку Java-приложения с помощью Gradle;
+* работу с Gradle Wrapper;
+* написание и запуск автоматических тестов;
+* создание Docker-образа приложения;
+* работу с `Dockerfile`;
+* запуск нескольких связанных сервисов через Docker Compose;
+* настройку взаимодействия приложения и PostgreSQL в контейнерах;
+* работу с переменными окружения и конфигурацией приложения;
+* просмотр логов и поиск причин ошибок при запуске приложения.
+
+Проект помог лучше понять полный процесс работы с приложением: от исходного кода и базы данных до сборки и запуска приложения в контейнерах.
+
+## Запуск проекта
+
+### 1. Клонировать репозиторий
+
+```bash
+git clone <repository-url>
+cd library-rest-api
+```
+
+### 2. Запустить через Docker Compose
+
+```bash
+docker compose up --build
+```
+
+### 3. Проверить запущенные контейнеры
+
+```bash
+docker compose ps
+```
+
+### 4. Посмотреть логи
+
+```bash
+docker compose logs
+```
+
+Для просмотра логов в реальном времени:
+
+```bash
+docker compose logs -f
+```
+
+### 5. Остановить проект
+
+```bash
+docker compose down
+```
+
+Таким образом, для запуска проекта достаточно Docker и Docker Compose — отдельно устанавливать PostgreSQL на локальную машину не требуется.
